@@ -1,5 +1,8 @@
 package com.mediscreen.report.service;
 import com.mediscreen.report.entity.*;
+import com.mediscreen.report.proxy.NoteProxy;
+import com.mediscreen.report.proxy.PatientProxy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,11 +12,16 @@ import java.util.Objects;
 
 @Service
 public class PatientReportService {
-    private EnumRisk diabetesPatientRiskLevel;
 
-    public Report generatePatientDiabetesReport(PatientWithNote patientWithNote){
-        Patient patient = patientWithNote.getPatient();
-        PatientNote patientNote = patientWithNote.getPatientNote();
+    private EnumRisk diabetesPatientRiskLevel;
+    @Autowired
+    PatientProxy patientProxy;
+    @Autowired
+    NoteProxy noteProxy;
+
+    public Report generatePatientDiabetesReport(int id){
+        Patient patient = patientProxy.getPatientById(id);
+        PatientNote patientNote = noteProxy.getNoteById(id);
         return this.calculPatientDiabetesReport(patient, patientNote);
     }
 
@@ -39,7 +47,9 @@ public class PatientReportService {
     }
 
     public int numberOfTriggerWord(PatientNote patientNote){
-        List<String> triggerWords = Arrays.asList("Hémoglobine A1C", "Microalbumine", "Taille", "Poids", "Fumeur","Anormal", "Cholestérol", "Vertige", "Rechute", "Réaction", "Anticorps");
+        List<String> triggerWords = Arrays.asList("Hémoglobine A1C", "Microalbumine", "Taille", "Poids", "Fumeur"
+                ,"Anormal", "Cholestérol", "Vertige", "Rechute", "Réaction", "Anticorps","Hemoglobine A1C",
+                "Weight","Height","Smoker","Abnormal","Cholesterol","Dizziness","Reaction","fear of heights","");
         int words= 0;
         String notes = patientNote.getNotes();
         for (String triggerWord : triggerWords) {
